@@ -1,0 +1,75 @@
+﻿@page "/Kip"
+@using Newtonsoft.Json
+@rendermode InteractiveServer
+<h3>Kip</h3>
+
+<input class="border" type="text" @bind="_activades.Fox"/>
+<button class="betr" @onclick="AddFile">Добавить</button>
+<button class="betr" @onclick="SaveFile">Сохранить</button>
+
+<table class="etpLoyethTabel">
+    <tr>
+        <td style="background: darkseagreen"><b>Действие</b></td>
+        <td style="background: darkseagreen"><b>Статус</b></td>
+        <td style="background: darkseagreen"><b>Удаление</b></td>
+    </tr>
+    @foreach (Activade item in Activades)
+    {
+        <tr>
+            <td>@item.Fox</td>
+            <td><input type="checkbox" @bind="item.Dog"/> @(item.Dog ? "Выполнил" : "Не выполнил")</td>
+            <td><button class="betr" @onclick="() => RemoveKeep(item)">Удалить</button></td>
+        </tr>
+    }
+</table>
+
+@code {
+    public IList<Activade> Activades { get; set; } = new List<Activade>();
+    
+    private Activade _activades = new Activade();
+    
+    const string path = "Activades.json";
+
+    public class Activade
+    {
+        public string Fox { get; set; }
+        public bool Dog { get; set; }
+    }
+
+    protected override void OnInitialized()
+    {
+        OpenFile();
+    }
+
+    public void OpenFile()
+    {
+        if (File.Exists(path))
+        {
+            var json = File.ReadAllText(path);
+            Activades = JsonConvert.DeserializeObject<List<Activade>>(json)!;
+        }
+        else
+        {
+            SaveFile();
+        }
+    }
+
+    public void SaveFile()
+    {
+        var json = JsonConvert.SerializeObject(Activades);
+        File.WriteAllText(path, json);
+    }
+    
+    private void AddFile()
+    {
+        Activades.Add(_activades);
+        _activades = new Activade();
+        SaveFile();
+    }
+
+    private void RemoveKeep(Activade item)
+    {
+        Activades.Remove(item);
+        SaveFile();
+    }
+}
