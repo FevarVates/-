@@ -1,0 +1,55 @@
+﻿@page "/weather"
+@rendermode InteractiveServer
+
+<h1>@InputAll</h1>
+<button @onclick="ClearAll">clear</button>
+<table class="calc">
+    <tbody>
+    @foreach (var row in ButtonLayout)
+    {
+        <tr>
+            @foreach (var button in row)
+            {
+                <th><button @onclick="() => AddToInput(button.ToString())">@button</button></th>
+            }
+        </tr>
+    }
+    <tr>
+        <th><button @onclick="Calculate">=</button></th>
+    </tr>
+    </tbody>
+</table>
+
+@code {
+    private string InputAll { get; set; } = string.Empty;
+
+    private string[][] ButtonLayout = new[]
+    {
+        new[] { "1", "2", "3", "-" },
+        new[] { "4", "5", "6", "x" },
+        new[] { "7", "8", "9", "+" }
+    };
+
+    private void ClearAll() => InputAll = string.Empty;
+
+    private void AddToInput(string value) => InputAll += value;
+
+    private void Calculate()
+    {
+        try
+        {
+            var result = EvaluateExpression(InputAll.Replace("x", "*"));
+            InputAll = result.ToString();
+        }
+        catch
+        {
+            InputAll = "Error";
+        }
+    }
+
+    private double EvaluateExpression(string expression)
+    {
+        var dataTable = new System.Data.DataTable();
+        return Convert.ToDouble(dataTable.Compute(expression, string.Empty));
+    }
+}
